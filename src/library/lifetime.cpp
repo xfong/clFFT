@@ -24,7 +24,7 @@
 #include "../include/sharedLibrary.h"
 #include "../statTimer/statisticalTimer.extern.h"
 
-clfftStatus clfftInitSetupData( clfftSetupData* setupData )
+clfftStatus clfftInitSetupData_internal( clfftSetupData* setupData )
 {
 	setupData->major	= clfftVersionMajor;
 	setupData->minor	= clfftVersionMinor;
@@ -35,7 +35,7 @@ clfftStatus clfftInitSetupData( clfftSetupData* setupData )
 }
 
 //	Allow AMD's implementation of FFT's to allocate internal resources
-clfftStatus	clfftSetup( const clfftSetupData* sData )
+clfftStatus	clfftSetup_internal( const clfftSetupData* sData )
 {
 	//	Static data is not thread safe (to create), so we implement a lock to protect instantiation for the first call
 	//	Implemented outside of FFTRepo::getInstance to minimize lock overhead; this is only necessary on first creation
@@ -83,7 +83,7 @@ clfftStatus	clfftSetup( const clfftSetupData* sData )
 }
 
 //	Allow AMD's implementation of FFT's to destroy internal resources
-clfftStatus	clfftTeardown( )
+clfftStatus	clfftTeardown_internal( )
 {
 	FFTRepo& fftRepo	= FFTRepo::getInstance( );
 	fftRepo.releaseResources( );
@@ -93,7 +93,7 @@ clfftStatus	clfftTeardown( )
 	return	CLFFT_SUCCESS;
 }
 
-clfftStatus clfftGetVersion( cl_uint* major, cl_uint* minor, cl_uint* patch )
+clfftStatus clfftGetVersion_internal( cl_uint* major, cl_uint* minor, cl_uint* patch )
 {
 	*major	= clfftVersionMajor;
 	*minor	= clfftVersionMinor;

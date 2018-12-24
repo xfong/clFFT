@@ -144,7 +144,7 @@ class	FFTRepo
 	//	does not seem appropriate, so a map was chosen because of the O(log N) search properties
 	//	A lock object is created for each plan, such that any getter/setter can lock the 'plan' object before
 	//	reading/writing its values.  The lock object is kept seperate from the plan object so that the lock
-	//	object can be held the entire time a plan is getting destroyed in clfftDestroyPlan.
+	//	object can be held the entire time a plan is getting destroyed in clfftDestroyPlan_internal.
 	typedef std::pair< FFTPlan*, lockRAII* > repoPlansValue;
 	typedef std::map< clfftPlanHandle, repoPlansValue > repoPlansType;
 	repoPlansType repoPlans;
@@ -171,11 +171,11 @@ class	FFTRepo
 		//releaseResources( );
 
 		//	We should at least print out a warning message to the user if we are in our destructor and we still have resources
-		//	bound.  This should give the user a clue to remember to call clfftTeardown( )
+		//	bound.  This should give the user a clue to remember to call clfftTeardown_internal( )
 		if( (!mapKernels.empty( )) || (!mapFFTs.empty( )) )
 		{
 			terr << _T( "Warning:  Program terminating, but clFFT resources not freed." ) << std::endl;
-			terr << _T( "Please consider explicitly calling clfftTeardown( )." ) << std::endl;
+			terr << _T( "Please consider explicitly calling clfftTeardown_internal( )." ) << std::endl;
 		}
 	};
 

@@ -315,10 +315,10 @@ clfftStatus FFTRepo::createPlan( clfftPlanHandle* plHandle, FFTPlan*& fftPlan )
 	scopedLock sLock( lockRepo(), _T( "insertPlan" ) );
 
 	//	We keep track of this memory in our own collection class, to make sure it's freed in releaseResources
-	//	The lifetime of a plan is tracked by the client and is freed when the client calls ::clfftDestroyPlan()
+	//	The lifetime of a plan is tracked by the client and is freed when the client calls ::clfftDestroyPlan_internal()
 	fftPlan	= new FFTPlan;
 
-	//	We allocate a new lock here, and expect it to be freed in ::clfftDestroyPlan();
+	//	We allocate a new lock here, and expect it to be freed in ::clfftDestroyPlan_internal();
 	//	The lifetime of the lock is the same as the lifetime of the plan
 	lockRAII* lockPlan	= new lockRAII;
 
@@ -358,7 +358,7 @@ clfftStatus FFTRepo::deletePlan( clfftPlanHandle* plHandle )
 
 	//	We lock the plan object while we are in the process of deleting it
 	{
-		scopedLock sLock( *iter->second.second, _T( "clfftDestroyPlan" ) );
+		scopedLock sLock( *iter->second.second, _T( "clfftDestroyPlan_internal" ) );
 		clReleaseContext( iter->second.first->context );
 
 		//	Delete the FFTPlan

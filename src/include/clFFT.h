@@ -232,7 +232,7 @@ extern "C" {
 	 *  @param[out] setupData Data structure is cleared and initialized with version information and default values
 	 *  @return Enum describes the error condition; superset of OpenCL error codes
 	 */
-	CLFFTAPI clfftStatus clfftInitSetupData( clfftSetupData* setupData );
+	CLFFTAPI clfftStatus clfftInitSetupData_internal( clfftSetupData* setupData );
 
 
 	/*! @brief Initialize the internal FFT resources.
@@ -241,13 +241,13 @@ extern "C" {
 	 * 	and debug functionality
 	 *  @return Enum describing error condition; superset of OpenCL error codes
 	 */
-	CLFFTAPI clfftStatus	clfftSetup( const clfftSetupData* setupData );
+	CLFFTAPI clfftStatus	clfftSetup_internal( const clfftSetupData* setupData );
 
 	/*! @brief Release all internal resources.
 	 *  @details Called when client is done with the FFT library, allowing the library to destroy all resources it has cached
 	 *  @return Enum describing error condition; superset of OpenCL error codes
 	 */
-	CLFFTAPI clfftStatus	clfftTeardown( );
+	CLFFTAPI clfftStatus	clfftTeardown_internal( );
 
 	/*! @brief Query the FFT library for version information
 	 *  @details Returns the major, minor and patch version numbers associated with the FFT library
@@ -256,7 +256,7 @@ extern "C" {
 	 *  @param[out] patch Bug fixes, documentation changes, no new features introduced
 	 *  @return Enum describing error condition; superset of OpenCL error codes
 	 */
-	CLFFTAPI clfftStatus	clfftGetVersion( cl_uint* major, cl_uint* minor, cl_uint* patch );
+	CLFFTAPI clfftStatus	clfftGetVersion_internal( cl_uint* major, cl_uint* minor, cl_uint* patch );
 
 	/*! @brief Create a plan object initialized entirely with default values.
 	 *  @details A plan is a repository of state for calculating FFT's.  Allows the runtime to pre-calculate kernels, programs
@@ -267,7 +267,7 @@ extern "C" {
 	 *  @param[in] clLengths An array of length of size 'dim';  each array value describes the length of each dimension
 	 *  @return Enum describing error condition; superset of OpenCL error codes
 	 */
-	CLFFTAPI clfftStatus	clfftCreateDefaultPlan( clfftPlanHandle* plHandle, cl_context context, const clfftDim dim,
+	CLFFTAPI clfftStatus	clfftCreateDefaultPlan_internal( clfftPlanHandle* plHandle, cl_context context, const clfftDim dim,
 								const size_t* clLengths );
 
 	/*! @brief Create a copy of an existing plan.
@@ -278,7 +278,7 @@ extern "C" {
 	 *  @param[in] in_plHandle Handle to a previously created plan that is to be copied
 	 *  @return Enum describing error condition; superset of OpenCL error codes
 	 */
-	CLFFTAPI clfftStatus	clfftCopyPlan( clfftPlanHandle* out_plHandle, cl_context new_context, clfftPlanHandle in_plHandle );
+	CLFFTAPI clfftStatus	clfftCopyPlan_internal( clfftPlanHandle* out_plHandle, cl_context new_context, clfftPlanHandle in_plHandle );
 
 	/*! @brief Prepare the plan for execution.
 	 *  @details After all plan parameters are set, the client has the option of 'baking' the plan, which informs the runtime that
@@ -304,7 +304,7 @@ extern "C" {
 	 *  Currently, this parameter MUST be NULL or nullptr.
 	 *  @return Enum describing error condition; superset of OpenCL error codes
 	 */
-	CLFFTAPI clfftStatus	clfftBakePlan( clfftPlanHandle plHandle, cl_uint numQueues, cl_command_queue* commQueueFFT,
+	CLFFTAPI clfftStatus	clfftBakePlan_internal( clfftPlanHandle plHandle, cl_uint numQueues, cl_command_queue* commQueueFFT,
 							void (CL_CALLBACK *pfn_notify)(clfftPlanHandle plHandle, void *user_data), void* user_data );
 
 	/*! @brief Release the resources of a plan.
@@ -313,7 +313,7 @@ extern "C" {
 	 *  @param[in,out] plHandle Handle to a previously created plan
 	 *  @return Enum describing error condition; superset of OpenCL error codes
 	 */
-	CLFFTAPI clfftStatus	clfftDestroyPlan( clfftPlanHandle* plHandle );
+	CLFFTAPI clfftStatus	clfftDestroyPlan_internal( clfftPlanHandle* plHandle );
 
 	/*! @brief Retrieve the OpenCL context of a previously created plan.
 	 *  @details The user must pass a reference to a cl_context variable, which is modified to point to a
@@ -322,7 +322,7 @@ extern "C" {
 	 *  @param[out] context Reference to the user allocated cl_context, which points to context set in the plan
 	 *  @return Enum describing error condition; superset of OpenCL error codes
 	 */
-	CLFFTAPI clfftStatus	clfftGetPlanContext( const clfftPlanHandle plHandle, cl_context* context );
+	CLFFTAPI clfftStatus	clfftGetPlanContext_internal( const clfftPlanHandle plHandle, cl_context* context );
 
 	/*! @brief Retrieve the floating point precision of the FFT data
 	 *  @details The user must pass a reference to a clfftPrecision variable, which is set to the
@@ -331,7 +331,7 @@ extern "C" {
 	 *  @param[out] precision Reference to the user clfftPrecision enum
 	 *  @return Enum describing error condition; superset of OpenCL error codes
 	 */
-	CLFFTAPI clfftStatus	clfftGetPlanPrecision( const clfftPlanHandle plHandle, clfftPrecision* precision );
+	CLFFTAPI clfftStatus	clfftGetPlanPrecision_internal( const clfftPlanHandle plHandle, clfftPrecision* precision );
 
 	/*! @brief Set the floating point precision of the FFT data
 	 *  @details Sets the floating point precision of the FFT complex data in the plan.
@@ -339,7 +339,7 @@ extern "C" {
 	 *  @param[in] precision Reference to the user clfftPrecision enum
 	 *  @return Enum describing error condition; superset of OpenCL error codes
 	 */
-	CLFFTAPI clfftStatus	clfftSetPlanPrecision( clfftPlanHandle plHandle, clfftPrecision precision );
+	CLFFTAPI clfftStatus	clfftSetPlanPrecision_internal( clfftPlanHandle plHandle, clfftPrecision precision );
 
 	/*! @brief Retrieve the scaling factor that is applied to the FFT data
 	 *  @details The user must pass a reference to a cl_float variable, which is set to the
@@ -349,7 +349,7 @@ extern "C" {
 	 *  @param[out] scale Reference to the user cl_float variable
 	 *  @return Enum describing error condition; superset of OpenCL error codes
 	 */
-	CLFFTAPI clfftStatus	clfftGetPlanScale( const clfftPlanHandle plHandle, clfftDirection dir, cl_float* scale );
+	CLFFTAPI clfftStatus	clfftGetPlanScale_internal( const clfftPlanHandle plHandle, clfftDirection dir, cl_float* scale );
 
 	/*! @brief Set the scaling factor that is applied to the FFT data
 	 *  @details Sets the floating point scaling factor that is
@@ -359,7 +359,7 @@ extern "C" {
 	 *  @param[in] scale Reference to the user cl_float variable
 	 *  @return Enum describing error condition; superset of OpenCL error codes
 	 */
-	CLFFTAPI clfftStatus	clfftSetPlanScale( clfftPlanHandle plHandle, clfftDirection dir, cl_float scale );
+	CLFFTAPI clfftStatus	clfftSetPlanScale_internal( clfftPlanHandle plHandle, clfftDirection dir, cl_float scale );
 
 	/*! @brief Retrieve the number of discrete arrays that the plan can concurrently handle
 	 *  @details The user must pass a reference to a cl_uint variable, which is set to the
@@ -368,7 +368,7 @@ extern "C" {
 	 *  @param[out] batchSize Number of discrete FFTs performed
 	 *  @return Enum describing error condition; superset of OpenCL error codes
 	 */
-	CLFFTAPI clfftStatus	clfftGetPlanBatchSize( const clfftPlanHandle plHandle, size_t* batchSize );
+	CLFFTAPI clfftStatus	clfftGetPlanBatchSize_internal( const clfftPlanHandle plHandle, size_t* batchSize );
 
 	/*! @brief Set the number of discrete arrays that the plan can concurrently handle
 	 *  @details Sets the plan property which sets the number of discrete arrays (1D or 2D)
@@ -377,7 +377,7 @@ extern "C" {
 	 *  @param[in] batchSize Number of discrete FFTs performed
 	 *  @return Enum describing error condition; superset of OpenCL error codes
 	 */
-	CLFFTAPI clfftStatus	clfftSetPlanBatchSize( clfftPlanHandle plHandle, size_t batchSize );
+	CLFFTAPI clfftStatus	clfftSetPlanBatchSize_internal( clfftPlanHandle plHandle, size_t batchSize );
 
 	/*! @brief Retrieve the dimensionality of the data that is transformed
 	 *  @details Queries a plan object and retrieves the value of the dimensionality that the plan is set for.  A size is returned to
@@ -387,7 +387,7 @@ extern "C" {
 	 *  @param[out] size Value to allocate an array to hold the FFT dimensions.
 	 *  @return Enum describing error condition; superset of OpenCL error codes
 	 */
-	CLFFTAPI clfftStatus	clfftGetPlanDim( const clfftPlanHandle plHandle, clfftDim* dim, cl_uint* size );
+	CLFFTAPI clfftStatus	clfftGetPlanDim_internal( const clfftPlanHandle plHandle, clfftDim* dim, cl_uint* size );
 
 	/*! @brief Set the dimensionality of the data that is transformed
 	 *  @details Set the dimensionality of the data that is transformed by the plan
@@ -395,7 +395,7 @@ extern "C" {
 	 *  @param[in] dim The dimensionality of the FFT to be transformed
 	 *  @return Enum describing error condition; superset of OpenCL error codes
 	 */
-	CLFFTAPI clfftStatus	clfftSetPlanDim( clfftPlanHandle plHandle, const clfftDim dim );
+	CLFFTAPI clfftStatus	clfftSetPlanDim_internal( clfftPlanHandle plHandle, const clfftDim dim );
 
 	/*! @brief Retrieve the length of each dimension of the FFT
 	 *  @details The user must pass a reference to a size_t array, which is set to the
@@ -405,7 +405,7 @@ extern "C" {
 	 *  @param[out] clLengths An array of length of size 'dim';  each array value describes the length of each dimension
 	 *  @return Enum describing error condition; superset of OpenCL error codes
 	 */
-	CLFFTAPI clfftStatus	clfftGetPlanLength( const clfftPlanHandle plHandle, const clfftDim dim, size_t* clLengths );
+	CLFFTAPI clfftStatus	clfftGetPlanLength_internal( const clfftPlanHandle plHandle, const clfftDim dim, size_t* clLengths );
 
 	/*! @brief Set the length of each dimension of the FFT
 	 *  @details Sets the plan property which is the length of each discrete dimension of the FFT
@@ -414,7 +414,7 @@ extern "C" {
 	 *  @param[in] clLengths An array of length of size 'dim';  each array value describes the length of each dimension
 	 *  @return Enum describing error condition; superset of OpenCL error codes
 	 */
-	CLFFTAPI clfftStatus	clfftSetPlanLength( clfftPlanHandle plHandle, const clfftDim dim, const size_t* clLengths );
+	CLFFTAPI clfftStatus	clfftSetPlanLength_internal( clfftPlanHandle plHandle, const clfftDim dim, const size_t* clLengths );
 
 	/*! @brief Retrieve the distance between consecutive elements of input buffers in each dimension.
 	 *  @details Depending on how the dimension is set in the plan (for 2D or 3D FFT), strideY or strideZ can be safely
@@ -423,7 +423,7 @@ extern "C" {
 	 *  @param[in] dim The dimension of the stride parameters; provides the number of elements in the array
 	 *  @param[out] clStrides An array of strides, of size 'dim'.
 	 */
-	CLFFTAPI clfftStatus	clfftGetPlanInStride( const clfftPlanHandle plHandle, const clfftDim dim, size_t* clStrides );
+	CLFFTAPI clfftStatus	clfftGetPlanInStride_internal( const clfftPlanHandle plHandle, const clfftDim dim, size_t* clStrides );
 
 	/*! @brief Set the distance between consecutive elements of input buffers in each dimension.
 	 *  @details Set the plan properties which is the distance between elements in all dimensions of the input buffer
@@ -434,7 +434,7 @@ extern "C" {
 	 * 	Typically, strideY=LenX and strideZ=LenX*LenY with the successive elements in the second and third dimensions stored in packed format.
 	 *  See  @ref DistanceStridesandPitches for details.
 	 */
-	CLFFTAPI clfftStatus	clfftSetPlanInStride( clfftPlanHandle plHandle, const clfftDim dim, size_t* clStrides );
+	CLFFTAPI clfftStatus	clfftSetPlanInStride_internal( clfftPlanHandle plHandle, const clfftDim dim, size_t* clStrides );
 
 	/*! @brief Retrieve the distance between consecutive elements of output buffers in each dimension.
 	 *  @details Depending on how the dimension is set in the plan (for 2D or 3D FFT), strideY or strideZ can be safely
@@ -443,7 +443,7 @@ extern "C" {
 	 *  @param[in] dim The dimension of the stride parameters; provides the number of elements in the clStrides array
 	 *  @param[out] clStrides An array of strides, of size 'dim'.
 	 */
-	CLFFTAPI clfftStatus	clfftGetPlanOutStride( const clfftPlanHandle plHandle, const clfftDim dim, size_t* clStrides );
+	CLFFTAPI clfftStatus	clfftGetPlanOutStride_internal( const clfftPlanHandle plHandle, const clfftDim dim, size_t* clStrides );
 
 	/*! @brief Set the distance between consecutive elements of output buffers in a dimension.
 	 *  @details Sets the plan properties which is the distance between elements in all dimensions of the output buffer
@@ -454,7 +454,7 @@ extern "C" {
 	 * 	Typically, strideY=LenX and strideZ=LenX*LenY cause the successive elements in the second and third dimensions be stored in packed format.
 	 *  @sa clfftSetPlanInStride
 	 */
-	CLFFTAPI clfftStatus	clfftSetPlanOutStride( clfftPlanHandle plHandle, const clfftDim dim, size_t* clStrides );
+	CLFFTAPI clfftStatus	clfftSetPlanOutStride_internal( clfftPlanHandle plHandle, const clfftDim dim, size_t* clStrides );
 
 	/*! @brief Retrieve the distance between array objects
 	 *  @details Pitch is the distance between each discrete array object in an FFT array. This is only used
@@ -465,7 +465,7 @@ extern "C" {
 	 *  @param[out] oDist The distance between the beginning elements of the discrete array objects in output buffer.
 	 *  For contiguous arrays in memory, oDist=(strideX*strideY*strideZ)
 	 */
-	CLFFTAPI clfftStatus	clfftGetPlanDistance( const clfftPlanHandle plHandle, size_t* iDist, size_t* oDist );
+	CLFFTAPI clfftStatus	clfftGetPlanDistance_internal( const clfftPlanHandle plHandle, size_t* iDist, size_t* oDist );
 
 	/*! @brief Set the distance between array objects
 	 *  @details Pitch is the distance between each discrete array object in an FFT array. This is only used
@@ -476,7 +476,7 @@ extern "C" {
 	 *  @param[out] oDist The distance between the beginning elements of the discrete array objects in output buffer.
 	 *  For contiguous arrays in memory, oDist=(strideX*strideY*strideZ)
 	 */
-	CLFFTAPI clfftStatus	clfftSetPlanDistance( clfftPlanHandle plHandle, size_t iDist, size_t oDist );
+	CLFFTAPI clfftStatus	clfftSetPlanDistance_internal( clfftPlanHandle plHandle, size_t iDist, size_t oDist );
 
 	/*! @brief Retrieve the expected layout of the input and output buffers
 	 *  @details Input and output buffers can be filled with either Hermitian, complex, or real numbers.  Complex numbers are stored
@@ -485,7 +485,7 @@ extern "C" {
 	 *  @param[out] iLayout Indicates how the input buffers are laid out in memory
 	 *  @param[out] oLayout Indicates how the output buffers are laid out in memory
 	 */
-	CLFFTAPI clfftStatus	clfftGetLayout( const clfftPlanHandle plHandle, clfftLayout* iLayout, clfftLayout* oLayout );
+	CLFFTAPI clfftStatus	clfftGetLayout_internal( const clfftPlanHandle plHandle, clfftLayout* iLayout, clfftLayout* oLayout );
 
 	/*! @brief Set the expected layout of the input and output buffers
 	 *  @details Input and output buffers can be filled with either Hermitian, complex, or real numbers.  Complex numbers can be stored
@@ -494,7 +494,7 @@ extern "C" {
 	 *  @param[in] iLayout Indicates how the input buffers are laid out in memory
 	 *  @param[in] oLayout Indicates how the output buffers are laid out in memory
 	 */
-	CLFFTAPI clfftStatus	clfftSetLayout( clfftPlanHandle plHandle, clfftLayout iLayout, clfftLayout oLayout );
+	CLFFTAPI clfftStatus	clfftSetLayout_internal( clfftPlanHandle plHandle, clfftLayout iLayout, clfftLayout oLayout );
 
 	/*! @brief Retrieve whether the input buffers are to be overwritten with results
 	 *  @details If the setting performs an in-place transform, the input buffers are overwritten with the results of the
@@ -503,7 +503,7 @@ extern "C" {
 	 *  @param[in] plHandle Handle to a previously created plan
 	 *  @param[out] placeness Informs the library to either overwrite the input buffers with results or to write them in separate output buffers
 	 */
-	CLFFTAPI clfftStatus	clfftGetResultLocation( const clfftPlanHandle plHandle, clfftResultLocation* placeness );
+	CLFFTAPI clfftStatus	clfftGetResultLocation_internal( const clfftPlanHandle plHandle, clfftResultLocation* placeness );
 
 	/*! @brief Set whether the input buffers are to be overwritten with results
 	 *  @details If the setting performs an in-place transform, the input buffers are overwritten with the results of the
@@ -512,7 +512,7 @@ extern "C" {
 	 *  @param[in] plHandle Handle to a previously created plan
 	 *  @param[in] placeness Informs the library to either overwrite the input buffers with results or to write them in separate output buffers
 	 */
-	CLFFTAPI clfftStatus	clfftSetResultLocation( clfftPlanHandle plHandle, clfftResultLocation placeness );
+	CLFFTAPI clfftStatus	clfftSetResultLocation_internal( clfftPlanHandle plHandle, clfftResultLocation placeness );
 
 	/*! @brief Retrieve the final transpose setting of a multi-dimensional FFT
 	 *  @details A multi-dimensional FFT transposes the data several times during calculation. If the client
@@ -521,7 +521,7 @@ extern "C" {
 	 *  @param[in] plHandle Handle to a previously created plan
 	 *  @param[out] transposed Specifies whether the final transpose can be skipped
 	 */
-	CLFFTAPI clfftStatus	clfftGetPlanTransposeResult( const clfftPlanHandle plHandle, clfftResultTransposed * transposed );
+	CLFFTAPI clfftStatus	clfftGetPlanTransposeResult_internal( const clfftPlanHandle plHandle, clfftResultTransposed * transposed );
 
 	/*! @brief Set the final transpose setting of a multi-dimensional FFT
 	 *  @details A multi-dimensional FFT transposes the data several times during calculation.  If the client
@@ -530,7 +530,7 @@ extern "C" {
 	 *  @param[in] plHandle Handle to a previously created plan
 	 *  @param[in] transposed Specifies whether the final transpose can be skipped
 	 */
-	CLFFTAPI clfftStatus	clfftSetPlanTransposeResult( clfftPlanHandle plHandle, clfftResultTransposed transposed );
+	CLFFTAPI clfftStatus	clfftSetPlanTransposeResult_internal( clfftPlanHandle plHandle, clfftResultTransposed transposed );
 
 
 	/*! @brief Get buffer size (in bytes), which may be needed internally for an intermediate buffer
@@ -540,7 +540,7 @@ extern "C" {
 	 *  @param[in] plHandle Handle to a previously created plan
 	 *  @param[out] buffersize Size in bytes for intermediate buffer
 	 */
-	CLFFTAPI clfftStatus clfftGetTmpBufSize( const clfftPlanHandle plHandle, size_t* buffersize );
+	CLFFTAPI clfftStatus clfftGetTmpBufSize_internal( const clfftPlanHandle plHandle, size_t* buffersize );
 
 	/*! @brief Register the callback parameters
 	 *  @details Client can provide a callback function to do custom processing while reading input data and/or
@@ -555,7 +555,7 @@ extern "C" {
 	 *  @param[in] userdata Supplementary data if any used by callback function
 	 *  @param[in] numUserdataBuffers Number of userdata buffers
 	 */
-	CLFFTAPI clfftStatus clfftSetPlanCallback(clfftPlanHandle plHandle, const char* funcName, const char* funcString,
+	CLFFTAPI clfftStatus clfftSetPlanCallback_internal(clfftPlanHandle plHandle, const char* funcName, const char* funcString,
 										int localMemSize, clfftCallbackType callbackType, cl_mem *userdata, int numUserdataBuffers);
 
 
@@ -581,7 +581,7 @@ extern "C" {
 	 *  and the library needs temporary storage, an internal temporary buffer is created on the fly managed by the library.
 	 *  @return Enum describing error condition; superset of OpenCL error codes
 	 */
-	CLFFTAPI clfftStatus	clfftEnqueueTransform(
+	CLFFTAPI clfftStatus	clfftEnqueueTransform_internal(
 												clfftPlanHandle plHandle,
 												clfftDirection dir,
 												cl_uint numQueuesAndEvents,

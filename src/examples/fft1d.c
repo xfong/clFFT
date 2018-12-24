@@ -63,8 +63,8 @@ int main( void )
 
     /* Setup clFFT. */
     clfftSetupData fftSetup;
-    err = clfftInitSetupData(&fftSetup);
-    err = clfftSetup(&fftSetup);
+    err = clfftInitSetupData_internal(&fftSetup);
+    err = clfftSetup_internal(&fftSetup);
 
     /* Allocate host & initialize data. */
     /* Only allocation shown for simplicity. */
@@ -90,18 +90,18 @@ int main( void )
             N * 2 * sizeof( *X ), X, 0, NULL, NULL );
 
     /* Create a default plan for a complex FFT. */
-    err = clfftCreateDefaultPlan(&planHandle, ctx, dim, clLengths);
+    err = clfftCreateDefaultPlan_internal(&planHandle, ctx, dim, clLengths);
 
     /* Set plan parameters. */
-    err = clfftSetPlanPrecision(planHandle, CLFFT_SINGLE);
-    err = clfftSetLayout(planHandle, CLFFT_COMPLEX_INTERLEAVED, CLFFT_COMPLEX_INTERLEAVED);
-    err = clfftSetResultLocation(planHandle, CLFFT_INPLACE);
+    err = clfftSetPlanPrecision_internal(planHandle, CLFFT_SINGLE);
+    err = clfftSetLayout_internal(planHandle, CLFFT_COMPLEX_INTERLEAVED, CLFFT_COMPLEX_INTERLEAVED);
+    err = clfftSetResultLocation_internal(planHandle, CLFFT_INPLACE);
 
     /* Bake the plan. */
-    err = clfftBakePlan(planHandle, 1, &queue, NULL, NULL);
+    err = clfftBakePlan_internal(planHandle, 1, &queue, NULL, NULL);
 
     /* Execute the plan. */
-    err = clfftEnqueueTransform(planHandle, CLFFT_FORWARD, 1, &queue, 0, NULL, NULL, &bufX, NULL, NULL);
+    err = clfftEnqueueTransform_internal(planHandle, CLFFT_FORWARD, 1, &queue, 0, NULL, NULL, &bufX, NULL, NULL);
 
     /* Wait for calculations to be finished. */
     err = clFinish(queue);
@@ -123,10 +123,10 @@ int main( void )
     free(X);
 
     /* Release the plan. */
-    err = clfftDestroyPlan( &planHandle );
+    err = clfftDestroyPlan_internal( &planHandle );
 
     /* Release clFFT library. */
-    clfftTeardown( );
+    clfftTeardown_internal( );
 
     /* Release OpenCL working objects. */
     clReleaseCommandQueue( queue );

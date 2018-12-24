@@ -98,7 +98,7 @@ extern "C" {
 	 */
 	__inline clAmdFftStatus clAmdFftSetup( const clAmdFftSetupData* setupData )
 	{
-		return clfftSetup( setupData );
+		return clfftSetup_internal( setupData );
 	}
 
 	/*! @brief Release all internal resources.

@@ -43,7 +43,7 @@ Currently, there is an upper bound on the transform size that the library can su
 
 @subsection EnumDim Dimensionality
 clFFT currently supports FFTs of (up to) three dimensions, given by the enum @ref clfftDim. This enum
-is a required parameter of @ref clfftCreateDefaultPlan() to create an initial plan, where a plan is the collection of (almost) all the parameters needed to specify an FFT computation. For more information about clFFT plans, see the section \ref clFFTPlans.
+is a required parameter of @ref clfftCreateDefaultPlan_internal() to create an initial plan, where a plan is the collection of (almost) all the parameters needed to specify an FFT computation. For more information about clFFT plans, see the section \ref clFFTPlans.
 Depending on the dimensionality that the client requests, clFFT uses the following formulations to compute the DFT:
 
 @li For a 1D complex DFT
@@ -66,16 +66,16 @@ x_{rqs}\exp\left({\pm i} {{2\pi jr}\over{n}}\right)\exp\left({\pm i}{{2\pi kq}\o
 for \f$j=0,1,\ldots,n-1\hbox{ and } k=0,1,\ldots,m-1\hbox{ and } l=0,1,\ldots,p-1\f$, where \f$x_{rqs}\f$ are the complex data to be transformed, \f$\tilde{x}_{jkl}\f$ are the transformed data, and the sign \f$\pm\f$ determines the direction of the transform. By default, the scale is set to 1 for forward transforms and \f${{1}\over{MNP}}\f$ for backward transforms, where *M*, *N*, and *P* are the 3D size of the transform.
 
 @subsection InitLibrary Setup and Teardown of clFFT
-clFFT is initialized by the API @ref clfftSetup(), which must be called before any other API of
+clFFT is initialized by the API @ref clfftSetup_internal(), which must be called before any other API of
 clFFT. This allows the library to create resources needed to manage the plans that you create and
-destroy. This API also takes a structure @ref clfftInitSetupData() that is initialized by the
+destroy. This API also takes a structure @ref clfftInitSetupData_internal() that is initialized by the
 client to control the behavior of the library.
 
-After you use the library, the @ref clfftTeardown() method must be called. This function instructs clFFT to release all resources allocated internally, and resets acquired references to any OpenCL objects.
+After you use the library, the @ref clfftTeardown_internal() method must be called. This function instructs clFFT to release all resources allocated internally, and resets acquired references to any OpenCL objects.
 
 @subsection ThreadSafety Thread safety
 The clFFT API is designed to be thread-safe. It is safe to create plans from multiple threads and to
-destroy those plans in separate threads. Multiple threads can call @ref clfftEnqueueTransform() to place work in a command queue at the same time. clFFT does not provide a single-threaded version of the library. The overhead of the synchronization mechanisms inside a clFFT thread-safe is expected to be minor.
+destroy those plans in separate threads. Multiple threads can call @ref clfftEnqueueTransform_internal() to place work in a command queue at the same time. clFFT does not provide a single-threaded version of the library. The overhead of the synchronization mechanisms inside a clFFT thread-safe is expected to be minor.
 
 Currently, you must manage the multi-device operation. You can create OpenCL contexts that are
 associated with multiple devices, but clFFT only uses a single device from that context to transform
@@ -85,16 +85,16 @@ across multiple devices and contexts.
 
 @subsection MajorFormat Row major formats
 clFFT expects all multi-dimensional input passed to it to be in row-major format. This is compatible
-with C-based languages. However, clFFT is very flexible in the organization of the input and output data, and it accepts input data by letting you specify a stride for each dimension. This feature can be used to process data in column major arrays and other non-contiguous data formats. See @ref clfftSetPlanInStride() and 
-@ref clfftSetPlanOutStride().
+with C-based languages. However, clFFT is very flexible in the organization of the input and output data, and it accepts input data by letting you specify a stride for each dimension. This feature can be used to process data in column major arrays and other non-contiguous data formats. See @ref clfftSetPlanInStride_internal() and 
+@ref clfftSetPlanOutStride_internal().
 
 @subsection Object OpenCL object creation
 Your application must allocate and manage OpenCL objects, such as contexts,  *cl_mem* buffers and command queues. All the clFFT interfaces that interact with OpenCL objects take those objects as references through the API.
-Specifically, the plan creation function @ref clfftCreateDefaultPlan() takes an OpenCL context as a parameter reference, increments the reference count on that object, and keeps the object alive until the corresponding plan is destroyed by the call @ref clfftDestroyPlan().
+Specifically, the plan creation function @ref clfftCreateDefaultPlan_internal() takes an OpenCL context as a parameter reference, increments the reference count on that object, and keeps the object alive until the corresponding plan is destroyed by the call @ref clfftDestroyPlan_internal().
 
 @subsection FlushQueue Flushing of command queues
 The clFFT API operates asynchronously; with the exception of thread safety locking with multiple 
-threads, all APIs return immediately. Specifically, the @ref clfftEnqueueTransform() API does not
+threads, all APIs return immediately. Specifically, the @ref clfftEnqueueTransform_internal() API does not
 explicitly flush the command queues that are passed by reference to it. It pushes the transform work onto the command queues and returns the modified queues to the client. The client is free to issue its own blocking logic by using OpenCL synchronization mechanisms or push further work onto the queue to continue processing.
 
 @subsection EnvVariables Environment variables
@@ -127,7 +127,7 @@ These parameters are specified when the plan is executed.
 
 @subsection Default Default plan values
 
-When a new plan is created by calling @ref clfftCreateDefaultPlan(), its parameters are initialized as
+When a new plan is created by calling @ref clfftCreateDefaultPlan_internal(), its parameters are initialized as
 follows:
 
 <ul>
@@ -179,65 +179,65 @@ By specifying non-default strides, it is possible to process either row-major or
 Distance is the amount of memory that exists between corresponding elements in an FFT primitive in a batch. Distance is measured in units of the FFT primitive; complex data measures in complex units, and real data measures in real units. Stride between tightly packed elements is 1 in either case. Typically, one can measure the distance between any two elements in a batch primitive, be it 1D, 2D, or 3D data. For tightly packed data, the distance between FFT primitives is the size of the FFT primitive, such that dist=LenX for 1D data, dist=LenX*LenY for 2D data, and dist=LenX*LenY*LenZ for 3D data. It is possible to set the distance of a plan to be less than the size of the FFT vector; most often 1 for this case. When computing a batch of 1D FFT vectors, if distance == 1, and strideX == length(vector), a transposed output is produced for a batch of 1D vectors. You must verify that the distance and strides are valid (not intersecting); if not valid, undefined results may occur.
 A simple example would be to perform a 1D length 4096 on each row of an array of 1024 rows x 4096 columns of values stored in a column-major array, such as a FORTRAN program might provide. (This would be equivalent to a C or C++ program that has an array of 4096 rows x 1024 columns stored in a row-major manner, on which you want to perform a 1-D length 4096 transform on each column.) In this case, specify the strides as [1024, 1].
 
-A more complex example would be to compute a 2D FFT for each 64 x 64 subtile of the grid that has an input buffer with a raster grid of 1024 x 1024 monochrome pixel values. Specifying strides allows you to treat each horizontal band of 1024 x 64 pixels as an array of 16 64 x 64 matrixes, and process an entire band with a single call @ref clfftEnqueueTransform(). (Specifying strides is not quite flexible enough to transform the entire grid of this example with a single kernel execution.) It is possible to create a Plan to compute arrays of 64 x 64 2D FFTs, then specify three strides: [1, 1024, 64]. The first stride, 1, indicates that the rows of each matrix are stored consecutively; the second stride, 1024, gives the distance between rows, and the third stride, 64, defines the distance between two matrices. Then call @ref clfftEnqueueTransform() 16 times – once for each horizontal band of pixels.
+A more complex example would be to compute a 2D FFT for each 64 x 64 subtile of the grid that has an input buffer with a raster grid of 1024 x 1024 monochrome pixel values. Specifying strides allows you to treat each horizontal band of 1024 x 64 pixels as an array of 16 64 x 64 matrixes, and process an entire band with a single call @ref clfftEnqueueTransform_internal(). (Specifying strides is not quite flexible enough to transform the entire grid of this example with a single kernel execution.) It is possible to create a Plan to compute arrays of 64 x 64 2D FFTs, then specify three strides: [1, 1024, 64]. The first stride, 1, indicates that the rows of each matrix are stored consecutively; the second stride, 1024, gives the distance between rows, and the third stride, 64, defines the distance between two matrices. Then call @ref clfftEnqueueTransform_internal() 16 times – once for each horizontal band of pixels.
 
 @subsection EnumPrecision Supported precisions in clFFT
 Both *CLFFT_SINGLE* and *CLFFT_DOUBLE* precisions are supported by the library for all supported radices. For both these enums the math functions of the host computer are used to produce the sine and cosine tables that are used by the OpenCL kernel.
 Both *CLFFT_SINGLE_FAST* and *CLFFT_DOUBLE_FAST* generate faster kernels with reduced accuracy, but are disabled in the current build.
-See @ref clfftPrecision, @ref clfftSetPlanPrecision(), and @ref clfftGetPlanPrecision().
+See @ref clfftPrecision, @ref clfftSetPlanPrecision_internal(), and @ref clfftGetPlanPrecision_internal().
 
 @subsection FftDirection clfftDirection
-For complex transforms, the direction of the transform is not baked into the plan; the same plan can be used to specify both forward and backward transforms. To specify the direction, @ref clfftDirection is passed as a parameter into @ref clfftEnqueueTransform(). 
+For complex transforms, the direction of the transform is not baked into the plan; the same plan can be used to specify both forward and backward transforms. To specify the direction, @ref clfftDirection is passed as a parameter into @ref clfftEnqueueTransform_internal(). 
 For real transforms, the  input and output layouts of the plan determine the direction.
 
 @subsection EnumResultLocation In-place and out-of-place transforms
-The clFFT API supports both in-place and out-of-place transforms. With in-place transforms, only the input buffers are provided to the @ref clfftEnqueueTransform() API, and the resulting data is written in the same buffer, overwriting the input data. With out-of-place transforms, distinct output buffers are provided to the @ref clfftEnqueueTransform() API, and the input data is preserved. 
+The clFFT API supports both in-place and out-of-place transforms. With in-place transforms, only the input buffers are provided to the @ref clfftEnqueueTransform_internal() API, and the resulting data is written in the same buffer, overwriting the input data. With out-of-place transforms, distinct output buffers are provided to the @ref clfftEnqueueTransform_internal() API, and the input data is preserved. 
 In-place transforms require that the *cl_mem* objects created by the client application, have both read and write permissions. This is given in the nature of the in-place algorithm. Out-of-place transforms require that the destination buffers have read and write permissions, but input buffers can still be created with read-only permissions. This is a clFFT requirement because internally the algorithms may go back and forth between the destination buffers and internally allocated temp buffers. For out-of-place transforms, clFFT never writes back to input buffers.
 
 @subsection clFFTEff Batches
-The efficiency of clFFT is improved by utilizing transforms in batches. Sending as much data as possible in a single transform call leverages the parallel compute capabilities of OpenCL devices (and GPU devices in particular), and minimizes the penalty of transfer overhead. It is best to think of an OpenCL device as a high-throughput, high-latency device. Using a networking analogy as an example, this approach is similar to having a massively high-bandwidth pipe with very high ping response times. If the client is ready to send data to the device for compute, it should be sent in as few API calls as possible and this can be done by batching. clFFT plans have a parameter @ref clfftSetPlanBatchSize() to describe the number of transforms being batched, and another parameter @ref clfftSetPlanDistance() to describe how those batches are laid out and spaced in memory. 1D, 2D, or 3D transforms can be batched.
+The efficiency of clFFT is improved by utilizing transforms in batches. Sending as much data as possible in a single transform call leverages the parallel compute capabilities of OpenCL devices (and GPU devices in particular), and minimizes the penalty of transfer overhead. It is best to think of an OpenCL device as a high-throughput, high-latency device. Using a networking analogy as an example, this approach is similar to having a massively high-bandwidth pipe with very high ping response times. If the client is ready to send data to the device for compute, it should be sent in as few API calls as possible and this can be done by batching. clFFT plans have a parameter @ref clfftSetPlanBatchSize_internal() to describe the number of transforms being batched, and another parameter @ref clfftSetPlanDistance_internal() to describe how those batches are laid out and spaced in memory. 1D, 2D, or 3D transforms can be batched.
 
 @section Outline  Using clFFT in a client application
 
 To perform FFT calculations using clFFT, the client program must perform the following tasks:
 <ul>
-	<li> Initialize the library by calling @ref clfftSetup(). </li>
+	<li> Initialize the library by calling @ref clfftSetup_internal(). </li>
 	<li> For each distinct type of FFT needed:
 	<ol>
    		 <li> Create an FFT Plan object. 
            			To create an FFT Plan object, do either of the following. 
 		<ul>
-			<li>Call the factory function @ref clfftCreateDefaultPlan() and specify the value 
+			<li>Call the factory function @ref clfftCreateDefaultPlan_internal() and specify the value 
 			       of the most fundamental parameters, such as plHandle, context, dim, and 
  			       clLengths, while other parameters assume default values.  The 
 			       OpenCL context must be provided when the plan is created; it cannot be 
 			       changed. </li> <br /> Or
-		 	<li>Call @ref clfftCopyPlan(). </li>
+		 	<li>Call @ref clfftCopyPlan_internal(). </li>
 		</ul>
             			Note: In both the cases, the function returns an opaque handle to the plan 
 			object.
     <li> Complete the specification of all the Plan parameters by calling various parameter-setting 
             functions that have the prefix *clfftSet*. </li>
-	  <li> Optionally, "bake" or finalize the plan by calling @ref clfftBakePlan() function. This signals 
+	  <li> Optionally, "bake" or finalize the plan by calling @ref clfftBakePlan_internal() function. This signals 
 	          the library the end of the specification phase, and causes it to generate and compile the 
                          exact OpenCL kernels that perform the specified FFT on the provided OpenCL device.
 	          At this point, all performance-enhancing optimizations are applied, possibly including 
                         executing benchmark kernels on the OpenCL device context to maximize the runtime 
                         performance. <br /> <br />
 Although the previous step is optional, it is recommended to use it so that you can
-have control on when to do this work. Usually, this time consuming step is done when the application is initialized. If you do not call @ref clfftBakePlan(), this work is done during the first call of @ref clfftEnqueueTransform().
+have control on when to do this work. Usually, this time consuming step is done when the application is initialized. If you do not call @ref clfftBakePlan_internal(), this work is done during the first call of @ref clfftEnqueueTransform_internal().
 		</li>
 	</ol>
 
 	<li> Execute the OpenCL FFT kernels as many times as needed. </li>
 	<ol>
-		<li>  Call @ref clfftEnqueueTransform(). At this point, specify whether you want to 
+		<li>  Call @ref clfftEnqueueTransform_internal(). At this point, specify whether you want to 
 		         execute a forward or reverse transform; also, provide the OpenCL *cl_mem* 
 		         handles for the input buffer(s), output buffer(s)--unless you want the transformed 
 		         data to overwrite the input buffers, and (optionally) scratch buffer.
-		         @ref clfftEnqueueTransform() performs one or more calls to the OpenCL function 
+		         @ref clfftEnqueueTransform_internal() performs one or more calls to the OpenCL function 
 		          clEnqueueNDRangeKernel. Like clEnqueueNDRangeKernel, @ref 
-                                       clfftEnqueueTransform() is a non-blocking call. The commands to execute the FFT 
+                                       clfftEnqueueTransform_internal() is a non-blocking call. The commands to execute the FFT 
                                        compute kernel(s) are added to the OpenCL context queue to be executed 
 		          asynchronously.
 		         An OpenCL event handle is returned to the caller. If multiple NDRangeKernel 
@@ -251,7 +251,7 @@ have control on when to do this work. Usually, this time consuming step is done 
 		        functions for synchronizing the host computer execution with the OpenCL device 
 		        (for example: clFinish()). </li>
 	</ol>
-	<li> Terminate the library by calling @ref clfftTeardown().
+	<li> Terminate the library by calling @ref clfftTeardown_internal().
 </ul>
 
 @section RealFFT  FFTs of real data
@@ -332,9 +332,9 @@ The workflow of FFT execution using callback feature of clFFT is as follows:
 
 <ol>
 	<li> Create the clFFT Plan and initialize the standard clFFT parameters.
-	<li> Use @ref clfftSetPlanCallback() API to register the callback function with library
+	<li> Use @ref clfftSetPlanCallback_internal() API to register the callback function with library
 		@code
-		clfftStatus clfftSetPlanCallback(clfftPlanHandle plHandle,
+		clfftStatus clfftSetPlanCallback_internal(clfftPlanHandle plHandle,
 											const char* funcName,
 											const char* funcString,
 											int localMemSize,
@@ -342,7 +342,7 @@ The workflow of FFT execution using callback feature of clFFT is as follows:
 											void *userdata,
 											int numUserdataBuffers)
 		@endcode
-		The library uses the arguments passed to this API, including callback function string, to stitch the callback code 	into the generated FFT kernel. The arguments for clfftSetPlanCallback are
+		The library uses the arguments passed to this API, including callback function string, to stitch the callback code 	into the generated FFT kernel. The arguments for clfftSetPlanCallback_internal are
 		<ul>
 			<li> clFFT plan handle
 			<li> Name of the callback function
@@ -460,16 +460,16 @@ cl_mem postuserdata = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOS
 //* Step 3 : Register the callback.
 //**************************************************************************
 
-status = clfftSetPlanCallback(plan_handle, "pre_mulval", precallbackstr, 0, PRECALLBACK, &preuserdata, 1);
+status = clfftSetPlanCallback_internal(plan_handle, "pre_mulval", precallbackstr, 0, PRECALLBACK, &preuserdata, 1);
 
-status = clfftSetPlanCallback(plan_handle, "post_mulval", postcallbackstr, 0, POSTCALLBACK, &postuserdata, 1);
+status = clfftSetPlanCallback_internal(plan_handle, "post_mulval", postcallbackstr, 0, POSTCALLBACK, &postuserdata, 1);
 
 //**************************************************************************
 //* Step 4 : Bake plan and enqueue transform.
 //**************************************************************************
-status = clfftBakePlan( plan_handle, 1, &queue, NULL, NULL );
+status = clfftBakePlan_internal( plan_handle, 1, &queue, NULL, NULL );
 
-status = clfftEnqueueTransform( plan_handle, dir, 1, &queue, 0, NULL, &outEvent,
+status = clfftEnqueueTransform_internal( plan_handle, dir, 1, &queue, 0, NULL, &outEvent,
 			&input_buffers[ 0 ], buffersOut, clMedBuffer );
 @endcode
 

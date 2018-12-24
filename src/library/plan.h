@@ -121,7 +121,7 @@ enum NON_SQUARE_KERNEL_ORDER
 #define CLFFT_MAX_INTERNAL_DIM 16
 
 /*! @brief Data structure to store the callback function string and other metadata passed by client 
-*  @details Client sets the callback function and other required parameters through clfftSetPlanCallback() 
+*  @details Client sets the callback function and other required parameters through clfftSetPlanCallback_internal() 
 *  in order to register the callback function. The library populates these values into this data structure
 */ 
 typedef struct clfftCallbackParam_

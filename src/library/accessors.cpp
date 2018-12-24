@@ -24,27 +24,27 @@
 
 using std::vector;
 
-clfftStatus clfftGetPlanBatchSize( const clfftPlanHandle plHandle, size_t* batchsize )
+clfftStatus clfftGetPlanBatchSize_internal( const clfftPlanHandle plHandle, size_t* batchsize )
 {
 	FFTRepo& fftRepo	= FFTRepo::getInstance( );
 	FFTPlan* fftPlan	= NULL;
 	lockRAII* planLock	= NULL;
 
 	OPENCL_V( fftRepo.getPlan( plHandle, fftPlan, planLock ), _T( "fftRepo.getPlan failed" ) );
-	scopedLock sLock( *planLock, _T( "clfftGetPlanBatchSize" ) );
+	scopedLock sLock( *planLock, _T( "clfftGetPlanBatchSize_internal" ) );
 
 	*batchsize   = fftPlan->batchsize;
 	return CLFFT_SUCCESS;
 }
 
-clfftStatus clfftSetPlanBatchSize( clfftPlanHandle plHandle, size_t batchsize )
+clfftStatus clfftSetPlanBatchSize_internal( clfftPlanHandle plHandle, size_t batchsize )
 {
 	FFTRepo& fftRepo	= FFTRepo::getInstance( );
 	FFTPlan* fftPlan	= NULL;
 	lockRAII* planLock	= NULL;
 
 	OPENCL_V( fftRepo.getPlan( plHandle, fftPlan, planLock ), _T( "fftRepo.getPlan failed" ) );
-	scopedLock sLock( *planLock, _T( "clfftSetPlanBatchSize" ) );
+	scopedLock sLock( *planLock, _T( "clfftSetPlanBatchSize_internal" ) );
 
 	//	If we modify the state of the plan, we assume that we can't trust any pre-calculated contents anymore
 	fftPlan->baked		= false;
@@ -52,27 +52,27 @@ clfftStatus clfftSetPlanBatchSize( clfftPlanHandle plHandle, size_t batchsize )
 	return CLFFT_SUCCESS;
 }
 
-clfftStatus clfftGetPlanContext( const clfftPlanHandle plHandle, cl_context* context )
+clfftStatus clfftGetPlanContext_internal( const clfftPlanHandle plHandle, cl_context* context )
 {
 	FFTRepo& fftRepo	= FFTRepo::getInstance( );
 	FFTPlan* fftPlan	= NULL;
 	lockRAII* planLock	= NULL;
 
 	OPENCL_V( fftRepo.getPlan( plHandle, fftPlan, planLock ), _T( "fftRepo.getPlan failed" ) );
-	scopedLock sLock( *planLock, _T( "clfftGetPlanContext" ) );
+	scopedLock sLock( *planLock, _T( "clfftGetPlanContext_internal" ) );
 
 	*context = fftPlan->context;
 	return CLFFT_SUCCESS;
 }
 
-clfftStatus clfftGetPlanPrecision( const clfftPlanHandle plHandle, clfftPrecision* precision )
+clfftStatus clfftGetPlanPrecision_internal( const clfftPlanHandle plHandle, clfftPrecision* precision )
 {
 	FFTRepo& fftRepo	= FFTRepo::getInstance( );
 	FFTPlan* fftPlan	= NULL;
 	lockRAII* planLock	= NULL;
 
 	OPENCL_V( fftRepo.getPlan( plHandle, fftPlan, planLock ), _T( "fftRepo.getPlan failed" ) );
-	scopedLock sLock( *planLock, _T( "clfftGetPlanPrecision" ) );
+	scopedLock sLock( *planLock, _T( "clfftGetPlanPrecision_internal" ) );
 
 	*precision	= fftPlan->precision;
 
@@ -80,14 +80,14 @@ clfftStatus clfftGetPlanPrecision( const clfftPlanHandle plHandle, clfftPrecisio
 }
 
 
-clfftStatus clfftSetPlanPrecision( clfftPlanHandle plHandle, clfftPrecision precision )
+clfftStatus clfftSetPlanPrecision_internal( clfftPlanHandle plHandle, clfftPrecision precision )
 {
 	FFTRepo& fftRepo	= FFTRepo::getInstance( );
 	FFTPlan* fftPlan	= NULL;
 	lockRAII* planLock	= NULL;
 
 	OPENCL_V( fftRepo.getPlan( plHandle, fftPlan, planLock ), _T( "fftRepo.getPlan failed" ) );
-	scopedLock sLock( *planLock, _T( "clfftSetPlanPrecision" ) );
+	scopedLock sLock( *planLock, _T( "clfftSetPlanPrecision_internal" ) );
 
 	if( precision >= ENDPRECISION )
 		return CLFFT_INVALID_ARG_VALUE;
@@ -105,14 +105,14 @@ clfftStatus clfftSetPlanPrecision( clfftPlanHandle plHandle, clfftPrecision prec
 	return	CLFFT_SUCCESS;
 }
 
-clfftStatus clfftGetPlanScale( const clfftPlanHandle plHandle, clfftDirection dir, cl_float* scale )
+clfftStatus clfftGetPlanScale_internal( const clfftPlanHandle plHandle, clfftDirection dir, cl_float* scale )
 {
 	FFTRepo& fftRepo	= FFTRepo::getInstance( );
 	FFTPlan* fftPlan	= NULL;
 	lockRAII* planLock	= NULL;
 
 	OPENCL_V( fftRepo.getPlan( plHandle, fftPlan, planLock ), _T( "fftRepo.getPlan failed" ) );
-	scopedLock sLock( *planLock, _T( "clfftGetPlanScale" ) );
+	scopedLock sLock( *planLock, _T( "clfftGetPlanScale_internal" ) );
 
 	if( dir >= ENDDIRECTION )
 		return CLFFT_INVALID_ARG_VALUE;
@@ -125,14 +125,14 @@ clfftStatus clfftGetPlanScale( const clfftPlanHandle plHandle, clfftDirection di
 	return CLFFT_SUCCESS;
 }
 
-clfftStatus clfftSetPlanScale( clfftPlanHandle plHandle, clfftDirection dir, cl_float scale )
+clfftStatus clfftSetPlanScale_internal( clfftPlanHandle plHandle, clfftDirection dir, cl_float scale )
 {
 	FFTRepo& fftRepo	= FFTRepo::getInstance( );
 	FFTPlan* fftPlan	= NULL;
 	lockRAII* planLock	= NULL;
 
 	OPENCL_V( fftRepo.getPlan( plHandle, fftPlan, planLock ), _T( "fftRepo.getPlan failed" ) );
-	scopedLock sLock( *planLock, _T( "clfftSetPlanScale" ) );
+	scopedLock sLock( *planLock, _T( "clfftSetPlanScale_internal" ) );
 
 	if( dir >= ENDDIRECTION )
 		return CLFFT_INVALID_ARG_VALUE;
@@ -148,14 +148,14 @@ clfftStatus clfftSetPlanScale( clfftPlanHandle plHandle, clfftDirection dir, cl_
 	return CLFFT_SUCCESS;
 }
 
-clfftStatus clfftGetPlanDim( const clfftPlanHandle plHandle, clfftDim* dim, cl_uint* size )
+clfftStatus clfftGetPlanDim_internal( const clfftPlanHandle plHandle, clfftDim* dim, cl_uint* size )
 {
 	FFTRepo& fftRepo	= FFTRepo::getInstance( );
 	FFTPlan* fftPlan	= NULL;
 	lockRAII* planLock	= NULL;
 
 	OPENCL_V( fftRepo.getPlan( plHandle, fftPlan, planLock ), _T( "fftRepo.getPlan failed" ) );
-	scopedLock sLock( *planLock, _T( "clfftGetPlanDim" ) );
+	scopedLock sLock( *planLock, _T( "clfftGetPlanDim_internal" ) );
 
 	*dim		= fftPlan->dim;
 
@@ -184,14 +184,14 @@ clfftStatus clfftGetPlanDim( const clfftPlanHandle plHandle, clfftDim* dim, cl_u
 	return CLFFT_SUCCESS;
 }
 
-clfftStatus clfftSetPlanDim( clfftPlanHandle plHandle, const clfftDim dim )
+clfftStatus clfftSetPlanDim_internal( clfftPlanHandle plHandle, const clfftDim dim )
 {
 	FFTRepo& fftRepo	= FFTRepo::getInstance( );
 	FFTPlan* fftPlan	= NULL;
 	lockRAII* planLock	= NULL;
 
 	OPENCL_V( fftRepo.getPlan( plHandle, fftPlan, planLock ), _T( "fftRepo.getPlan failed" ) );
-	scopedLock sLock( *planLock, _T( "clfftGetPlanDim" ) );
+	scopedLock sLock( *planLock, _T( "clfftGetPlanDim_internal" ) );
 
 	//	We resize the vectors in the plan to keep their sizes consistent with the value of the dimension
 	switch( dim )
@@ -229,14 +229,14 @@ clfftStatus clfftSetPlanDim( clfftPlanHandle plHandle, const clfftDim dim )
 	return CLFFT_SUCCESS;
 }
 
-clfftStatus clfftGetPlanLength( const clfftPlanHandle plHandle, const clfftDim dim, size_t* clLengths )
+clfftStatus clfftGetPlanLength_internal( const clfftPlanHandle plHandle, const clfftDim dim, size_t* clLengths )
 {
 	FFTRepo& fftRepo	= FFTRepo::getInstance( );
 	FFTPlan* fftPlan	= NULL;
 	lockRAII* planLock	= NULL;
 
 	OPENCL_V( fftRepo.getPlan( plHandle, fftPlan, planLock ), _T( "fftRepo.getPlan failed" ) );
-	scopedLock sLock( *planLock, _T( "clfftGetPlanLength" ) );
+	scopedLock sLock( *planLock, _T( "clfftGetPlanLength_internal" ) );
 
 	if( clLengths == NULL )
 		return CLFFT_INVALID_HOST_PTR;
@@ -277,14 +277,14 @@ clfftStatus clfftGetPlanLength( const clfftPlanHandle plHandle, const clfftDim d
 	return	CLFFT_SUCCESS;
 }
 
-clfftStatus clfftSetPlanLength( clfftPlanHandle plHandle, const clfftDim dim, const size_t* clLengths )
+clfftStatus clfftSetPlanLength_internal( clfftPlanHandle plHandle, const clfftDim dim, const size_t* clLengths )
 {
 	FFTRepo& fftRepo	= FFTRepo::getInstance( );
 	FFTPlan* fftPlan	= NULL;
 	lockRAII* planLock	= NULL;
 
 	OPENCL_V( fftRepo.getPlan( plHandle, fftPlan, planLock ), _T( "fftRepo.getPlan failed" ) );
-	scopedLock sLock( *planLock, _T( "clfftSetPlanLength" ) );
+	scopedLock sLock( *planLock, _T( "clfftSetPlanLength_internal" ) );
 
 	if( clLengths == NULL )
 		return CLFFT_INVALID_HOST_PTR;
@@ -353,14 +353,14 @@ clfftStatus clfftSetPlanLength( clfftPlanHandle plHandle, const clfftDim dim, co
 	return	CLFFT_SUCCESS;
 }
 
-clfftStatus clfftGetPlanInStride( const clfftPlanHandle plHandle, const clfftDim dim, size_t* clStrides )
+clfftStatus clfftGetPlanInStride_internal( const clfftPlanHandle plHandle, const clfftDim dim, size_t* clStrides )
 {
 	FFTRepo& fftRepo	= FFTRepo::getInstance( );
 	FFTPlan* fftPlan	= NULL;
 	lockRAII* planLock	= NULL;
 
 	OPENCL_V( fftRepo.getPlan( plHandle, fftPlan, planLock ), _T( "fftRepo.getPlan failed" ) );
-	scopedLock sLock( *planLock, _T( "clfftGetPlanInStride" ) );
+	scopedLock sLock( *planLock, _T( "clfftGetPlanInStride_internal" ) );
 
 	if( clStrides == NULL )
 		return CLFFT_INVALID_HOST_PTR;
@@ -406,14 +406,14 @@ clfftStatus clfftGetPlanInStride( const clfftPlanHandle plHandle, const clfftDim
 	return CLFFT_SUCCESS;
 }
 
-clfftStatus clfftSetPlanInStride( clfftPlanHandle plHandle, const clfftDim dim, size_t* clStrides )
+clfftStatus clfftSetPlanInStride_internal( clfftPlanHandle plHandle, const clfftDim dim, size_t* clStrides )
 {
 	FFTRepo& fftRepo	= FFTRepo::getInstance( );
 	FFTPlan* fftPlan	= NULL;
 	lockRAII* planLock	= NULL;
 
 	OPENCL_V( fftRepo.getPlan( plHandle, fftPlan, planLock ), _T( "fftRepo.getPlan failed" ) );
-	scopedLock sLock( *planLock, _T( "clfftSetPlanInStride" ) );
+	scopedLock sLock( *planLock, _T( "clfftSetPlanInStride_internal" ) );
 
 	if( clStrides == NULL )
 		return CLFFT_INVALID_HOST_PTR;
@@ -451,14 +451,14 @@ clfftStatus clfftSetPlanInStride( clfftPlanHandle plHandle, const clfftDim dim, 
 	return CLFFT_SUCCESS;
 }
 
-clfftStatus clfftGetPlanOutStride( const clfftPlanHandle plHandle, const clfftDim dim, size_t* clStrides )
+clfftStatus clfftGetPlanOutStride_internal( const clfftPlanHandle plHandle, const clfftDim dim, size_t* clStrides )
 {
 	FFTRepo& fftRepo	= FFTRepo::getInstance( );
 	FFTPlan* fftPlan	= NULL;
 	lockRAII* planLock	= NULL;
 
 	OPENCL_V( fftRepo.getPlan( plHandle, fftPlan, planLock ), _T( "fftRepo.getPlan failed" ) );
-	scopedLock sLock( *planLock, _T( "clfftGetPlanOutStride" ) );
+	scopedLock sLock( *planLock, _T( "clfftGetPlanOutStride_internal" ) );
 
 	if( clStrides == NULL )
 		return CLFFT_INVALID_HOST_PTR;
@@ -504,14 +504,14 @@ clfftStatus clfftGetPlanOutStride( const clfftPlanHandle plHandle, const clfftDi
 	return CLFFT_SUCCESS;
 }
 
-clfftStatus clfftSetPlanOutStride( clfftPlanHandle plHandle, const clfftDim dim, size_t* clStrides )
+clfftStatus clfftSetPlanOutStride_internal( clfftPlanHandle plHandle, const clfftDim dim, size_t* clStrides )
 {
 	FFTRepo& fftRepo	= FFTRepo::getInstance( );
 	FFTPlan* fftPlan	= NULL;
 	lockRAII* planLock	= NULL;
 
 	OPENCL_V( fftRepo.getPlan( plHandle, fftPlan, planLock ), _T( "fftRepo.getPlan failed" ) );
-	scopedLock sLock( *planLock, _T( "clfftSetPlanOutStride" ) );
+	scopedLock sLock( *planLock, _T( "clfftSetPlanOutStride_internal" ) );
 
 	if( clStrides == NULL )
 		return CLFFT_INVALID_HOST_PTR;
@@ -549,14 +549,14 @@ clfftStatus clfftSetPlanOutStride( clfftPlanHandle plHandle, const clfftDim dim,
 	return CLFFT_SUCCESS;
 }
 
-clfftStatus clfftGetPlanDistance( const clfftPlanHandle plHandle, size_t* iDist, size_t* oDist )
+clfftStatus clfftGetPlanDistance_internal( const clfftPlanHandle plHandle, size_t* iDist, size_t* oDist )
 {
 	FFTRepo& fftRepo	= FFTRepo::getInstance( );
 	FFTPlan* fftPlan	= NULL;
 	lockRAII* planLock	= NULL;
 
 	OPENCL_V( fftRepo.getPlan( plHandle, fftPlan, planLock ), _T( "fftRepo.getPlan failed" ) );
-	scopedLock sLock( *planLock, _T( "clfftGetPlanDistance" ) );
+	scopedLock sLock( *planLock, _T( "clfftGetPlanDistance_internal" ) );
 
 	*iDist				= fftPlan->iDist;
 	*oDist				= fftPlan->oDist;
@@ -564,14 +564,14 @@ clfftStatus clfftGetPlanDistance( const clfftPlanHandle plHandle, size_t* iDist,
 	return	CLFFT_SUCCESS;
 }
 
-clfftStatus clfftSetPlanDistance( clfftPlanHandle plHandle, size_t iDist, size_t oDist )
+clfftStatus clfftSetPlanDistance_internal( clfftPlanHandle plHandle, size_t iDist, size_t oDist )
 {
 	FFTRepo& fftRepo	= FFTRepo::getInstance( );
 	FFTPlan* fftPlan	= NULL;
 	lockRAII* planLock	= NULL;
 
 	OPENCL_V( fftRepo.getPlan( plHandle, fftPlan, planLock ), _T( "fftRepo.getPlan failed" ) );
-	scopedLock sLock( *planLock, _T( "clfftSetPlanDistance" ) );
+	scopedLock sLock( *planLock, _T( "clfftSetPlanDistance_internal" ) );
 
 	//	If we modify the state of the plan, we assume that we can't trust any pre-calculated contents anymore
 	fftPlan->baked	= false;
@@ -581,14 +581,14 @@ clfftStatus clfftSetPlanDistance( clfftPlanHandle plHandle, size_t iDist, size_t
 	return CLFFT_SUCCESS;
 }
 
-clfftStatus clfftGetLayout( const clfftPlanHandle plHandle, clfftLayout* iLayout, clfftLayout* oLayout )
+clfftStatus clfftGetLayout_internal( const clfftPlanHandle plHandle, clfftLayout* iLayout, clfftLayout* oLayout )
 {
 	FFTRepo& fftRepo	= FFTRepo::getInstance( );
 	FFTPlan* fftPlan	= NULL;
 	lockRAII* planLock	= NULL;
 
 	OPENCL_V( fftRepo.getPlan( plHandle, fftPlan, planLock ), _T( "fftRepo.getPlan failed" ) );
-	scopedLock sLock( *planLock, _T( "clfftGetLayout" ) );
+	scopedLock sLock( *planLock, _T( "clfftGetLayout_internal" ) );
 
 	*iLayout			= fftPlan->inputLayout;
 	*oLayout			= fftPlan->outputLayout;
@@ -596,14 +596,14 @@ clfftStatus clfftGetLayout( const clfftPlanHandle plHandle, clfftLayout* iLayout
 	return	CLFFT_SUCCESS;
 }
 
-clfftStatus clfftSetLayout( clfftPlanHandle plHandle, clfftLayout iLayout, clfftLayout oLayout )
+clfftStatus clfftSetLayout_internal( clfftPlanHandle plHandle, clfftLayout iLayout, clfftLayout oLayout )
 {
 	FFTRepo& fftRepo	= FFTRepo::getInstance( );
 	FFTPlan* fftPlan	= NULL;
 	lockRAII* planLock	= NULL;
 
 	OPENCL_V( fftRepo.getPlan( plHandle, fftPlan, planLock ), _T( "fftRepo.getPlan failed" ) );
-	scopedLock sLock( *planLock, _T( "clfftSetLayout" ) );
+	scopedLock sLock( *planLock, _T( "clfftSetLayout_internal" ) );
 
 	//	Basic error checking on parameter
 	if( ( iLayout >= ENDLAYOUT ) || ( oLayout >= ENDLAYOUT ) )
@@ -667,28 +667,28 @@ clfftStatus clfftSetLayout( clfftPlanHandle plHandle, clfftLayout iLayout, clfft
 	return	CLFFT_SUCCESS;
 }
 
-clfftStatus clfftGetResultLocation( const clfftPlanHandle plHandle, clfftResultLocation* placeness )
+clfftStatus clfftGetResultLocation_internal( const clfftPlanHandle plHandle, clfftResultLocation* placeness )
 {
 	FFTRepo& fftRepo	= FFTRepo::getInstance( );
 	FFTPlan* fftPlan	= NULL;
 	lockRAII* planLock	= NULL;
 
 	OPENCL_V( fftRepo.getPlan( plHandle, fftPlan, planLock ), _T( "fftRepo.getPlan failed" ) );
-	scopedLock sLock( *planLock, _T( "clfftGetResultLocation" ) );
+	scopedLock sLock( *planLock, _T( "clfftGetResultLocation_internal" ) );
 
 	*placeness	= fftPlan->placeness;
 
 	return	CLFFT_SUCCESS;
 }
 
-clfftStatus clfftSetResultLocation( clfftPlanHandle plHandle, clfftResultLocation placeness )
+clfftStatus clfftSetResultLocation_internal( clfftPlanHandle plHandle, clfftResultLocation placeness )
 {
 	FFTRepo& fftRepo	= FFTRepo::getInstance( );
 	FFTPlan* fftPlan	= NULL;
 	lockRAII* planLock	= NULL;
 
 	OPENCL_V( fftRepo.getPlan( plHandle, fftPlan, planLock ), _T( "fftRepo.getPlan failed" ) );
-	scopedLock sLock( *planLock, _T( "clfftSetResultLocation" ) );
+	scopedLock sLock( *planLock, _T( "clfftSetResultLocation_internal" ) );
 
 	//	Basic error checking on parameter
 	if( placeness >= ENDPLACE )
@@ -702,28 +702,28 @@ clfftStatus clfftSetResultLocation( clfftPlanHandle plHandle, clfftResultLocatio
 }
 
 
-clfftStatus clfftGetPlanTransposeResult( const clfftPlanHandle plHandle, clfftResultTransposed * transposed )
+clfftStatus clfftGetPlanTransposeResult_internal( const clfftPlanHandle plHandle, clfftResultTransposed * transposed )
 {
 	FFTRepo& fftRepo	= FFTRepo::getInstance( );
 	FFTPlan* fftPlan	= NULL;
 	lockRAII* planLock	= NULL;
 
 	OPENCL_V( fftRepo.getPlan( plHandle, fftPlan, planLock ), _T( "fftRepo.getPlan failed" ) );
-	scopedLock sLock( *planLock, _T( "clfftGetResultLocation" ) );
+	scopedLock sLock( *planLock, _T( "clfftGetResultLocation_internal" ) );
 
 	*transposed	= fftPlan->transposed;
 
 	return	CLFFT_SUCCESS;
 }
 
-clfftStatus clfftSetPlanTransposeResult( clfftPlanHandle plHandle, clfftResultTransposed transposed )
+clfftStatus clfftSetPlanTransposeResult_internal( clfftPlanHandle plHandle, clfftResultTransposed transposed )
 {
 	FFTRepo& fftRepo	= FFTRepo::getInstance( );
 	FFTPlan* fftPlan	= NULL;
 	lockRAII* planLock	= NULL;
 
 	OPENCL_V( fftRepo.getPlan( plHandle, fftPlan, planLock ), _T( "fftRepo.getPlan failed" ) );
-	scopedLock sLock( *planLock, _T( "clfftSetResultLocation" ) );
+	scopedLock sLock( *planLock, _T( "clfftSetResultLocation_internal" ) );
 
 	//	Basic error checking on parameter
 	if( transposed >= ENDTRANSPOSED )
@@ -736,14 +736,14 @@ clfftStatus clfftSetPlanTransposeResult( clfftPlanHandle plHandle, clfftResultTr
 	return	CLFFT_SUCCESS;
 }
 
-clfftStatus clfftGetTmpBufSize( const clfftPlanHandle plHandle, size_t* buffersize )
+clfftStatus clfftGetTmpBufSize_internal( const clfftPlanHandle plHandle, size_t* buffersize )
 {
 	FFTRepo& fftRepo	= FFTRepo::getInstance( );
 	FFTPlan* fftPlan	= NULL;
 	lockRAII* planLock	= NULL;
 
 	OPENCL_V( fftRepo.getPlan( plHandle, fftPlan, planLock ), _T( "fftRepo.getPlan failed" ) );
-	scopedLock sLock( *planLock, _T( "clfftGetPlanBatchSize" ) );
+	scopedLock sLock( *planLock, _T( "clfftGetPlanBatchSize_internal" ) );
 
 	if (fftPlan->baked == true)
 	{
@@ -767,7 +767,7 @@ clfftStatus clfftLocalMemSize( const clfftPlanHandle plHandle, cl_ulong* local_m
 	return CLFFT_SUCCESS;
 }
 
-clfftStatus clfftSetPlanCallback(clfftPlanHandle plHandle, const char* funcName, 
+clfftStatus clfftSetPlanCallback_internal(clfftPlanHandle plHandle, const char* funcName, 
 								 const char* funcString, int localMemSize, 
 								 clfftCallbackType callbackType, cl_mem *userdata, int numUserdataBuffers)
 {
@@ -776,7 +776,7 @@ clfftStatus clfftSetPlanCallback(clfftPlanHandle plHandle, const char* funcName,
 	lockRAII* planLock	= NULL;
 
 	OPENCL_V( fftRepo.getPlan( plHandle, fftPlan, planLock ), _T( "fftRepo.getPlan failed" ) );
-	scopedLock sLock( *planLock, _T( "clfftSetPlanCallback" ) );
+	scopedLock sLock( *planLock, _T( "clfftSetPlanCallback_internal" ) );
 
 	switch (callbackType)
 	{
